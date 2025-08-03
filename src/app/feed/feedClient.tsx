@@ -4,10 +4,9 @@ import React, { useRef, useState } from "react";
 import { RightBar } from "@/src/components/rightBar";
 import { LeftBar } from "@/src/components/leftBar";
 import { Image as ImageIcon } from "lucide-react";
-import Image from "next/image";
 import { FeedInput } from "@/src/components/FeedInput";
 import { ImageSection } from "@/src/components/imageSection";
-import * as shapes from "@/src/components/shapes";
+import PostTile from "./postTile";
 
 import type { Session } from "next-auth";
 
@@ -93,87 +92,22 @@ export function FeedClient({
           </div>
         </div>
         <hr style={{ width: "90%", margin: "0 auto" }} />
-        {/* placeholder for feed posts, gonna modularize this later */}
-        <div className="border border-gray-300 rounded-xl p-4 m-8">
-          <div className="flex flex-row items-center p-4 gap-4">
-            <Image
-              src={session.user?.image ?? ""}
-              alt=""
-              width={48}
-              height={48}
-              className="w-12 h-12 rounded-full"
-            />
-            <div className="flex flex-col items-start ">
-              <h3 className="text-xl font-semibold mb-0">
-                @{session.user?.name ?? "Anonymous User"}
-              </h3>
-              <div className="flex flex-row items-center justify-start">
-                <p className="text-gray-600 text-sm">
-                  August 3rd, 2025, 12:00 PM
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-col mx-4 text-lg ">
-            <p>content yadayada</p>
-            <div className="flex flex-col items-center justify-center mt-4">
-              <ImageSection
-                images={[
-                  "https://github.com/BananaJeanss/tchat/raw/main/assets/tchat.png",
-                  "https://github.com/BananaJeanss/tchat/raw/main/assets/tchat.png",
-                  "https://github.com/BananaJeanss/tchat/raw/main/assets/tchat.png",
-                ]}
-              />
-            </div>
-          </div>
-          <div className="flex flex-row items-center justify-start mt-4">
-            <button className="text-white px-6 py-2 rounded-4xl cursor-pointer">
-              <span>
-                <shapes.Triangle
-                  className="inline mr-2 w-6 h-6 text-gray-600"
-                  fill="#4B5563"
-                />
-                0
-              </span>
-            </button>
-            <button className="text-white px-6 py-2 rounded-4xl cursor-pointer">
-              <span>
-                <shapes.Circle
-                  className="inline mr-2 w-6 h-6 text-gray-600"
-                  fill="#4B5563"
-                />
-                0
-              </span>
-            </button>
-            <button className="text-white px-6 py-2 rounded-4xl cursor-pointer">
-              <span>
-                <shapes.Square
-                  className="inline mr-2 w-6 h-6 text-gray-600"
-                  fill="#4B5563"
-                />
-                0
-              </span>
-            </button>
-            <button className="text-white px-6 py-2 rounded-4xl cursor-pointer">
-              <span>
-                <shapes.Diamond
-                  className="inline mr-2 w-6 h-6 text-gray-600"
-                  fill="#4B5563"
-                />
-                0
-              </span>
-            </button>
-            <button className="text-white px-6 py-2 rounded-4xl cursor-pointer">
-              <span>
-                <shapes.Hexagon
-                  className="inline mr-2 w-6 h-6 text-gray-600"
-                  fill="#4B5563"
-                />
-                0
-              </span>
-            </button>
-          </div>
-        </div>
+        <PostTile
+          username={session.user?.name ?? undefined}
+          userImage={session.user?.image ?? undefined}
+          textContent={"yadayadayada test textContent"}
+          date={"tomorrow maybe"}
+          images={[
+            "https://github.com/BananaJeanss/tchat/raw/main/assets/tchat.png",
+          ]}
+          shapeCounts={{
+            triangle: 0,
+            circle: 0,
+            square: 0,
+            diamond: 0,
+            hexagon: 0,
+          }}
+        />
       </div>
       <RightBar
         session={{
