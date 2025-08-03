@@ -1,5 +1,4 @@
-import Link from "next/link";
-import Image from "next/image";
+import { signIn } from "@/auth";
 
 export default function Home() {
   return (
@@ -8,16 +7,16 @@ export default function Home() {
         <h1 className="text-4xl font-bold pb-8">shapeit</h1>
         <p className="text-lg">a social media where you react with shapes</p>
         <div className="flex flex-row items-center gap-4 pt-8">
-          <Link href="/signup">
-            <button className="border border-white rounded-4xl py-2 px-6 hover:cursor-pointer">
-              Sign Up
-            </button>
-          </Link>
-          <Link href="/login">
-            <button className="border border-gray bg-white text-black rounded-4xl py-2 px-6 hover:cursor-pointer">
+          <form
+            action={async () => {
+              "use server";
+              await signIn("github");
+            }}
+          >
+            <button className="border border-gray bg-white text-black rounded-4xl py-2 px-12 hover:cursor-pointer">
               Log In
             </button>
-          </Link>
+          </form>
         </div>
       </header>
     </div>
