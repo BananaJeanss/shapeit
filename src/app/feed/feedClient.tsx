@@ -1,0 +1,101 @@
+"use client";
+
+import React, { useRef, useState } from "react";
+import { RightBar } from "@/src/components/rightBar";
+import { LeftBar } from "@/src/components/leftBar";
+import { Image as ImageIcon } from "lucide-react";
+import { FeedInput } from "@/src/components/FeedInput";
+import { ImageSection } from "@/src/components/imageSection";
+
+import type { Session } from "next-auth";
+
+export function FeedClient({ session }: { session: Session }): React.JSX.Element {
+  const [images, setImages] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const files = Array.from(e.target.files).slice(0, 4 - images.length);
+    const readers = files.map(
+      (file) =>
+        new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (ev) => resolve(ev.target?.result as string);
+          reader.readAsDataURL(file);
+        })
+    );
+    Promise.all(readers).then((newImages) => {
+      setImages((prev) => [...prev, ...newImages].slice(0, 4));
+    });
+    e.target.value = "";
+  };
+
+  const handleAddImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleRemoveImage = (idx: number) => {
+    setImages((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  return (
+    <div className="flex flex-row items-center justify-center w-screen h-screen overflow-hidden">
+      <LeftBar />
+      <div className="flex flex-col border-r border-gray-300 flex-1 h-full">
+        <h2 className="text-4xl font-semibold m-4">Feed</h2>
+        <hr style={{ width: "90%", margin: "0 auto" }} />
+        <div className="flex flex-col m-4 p-5 rounded-md w-4/4 mx-auto align-middle">
+          <FeedInput userImage={session.user?.image ?? undefined} />
+          {images.length > 0 && (
+            <div className="my-4 w-full flex flex-col items-center">
+              <ImageSection images={images} />
+              <div className="flex gap-2 mt-2">
+                {images.map((_, idx) => (
+                  <button
+                    key={idx}
+                    className="text-xs text-red-500 underline cursor-pointer "
+                    onClick={() => handleRemoveImage(idx)}
+                    type="button"
+                  >
+                    Remove {idx + 1}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          <div className="flex flex-row items-center justify-end mt-4 mx-2 gap-4 ">
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              hidden
+              ref={fileInputRef}
+              onChange={handleImageChange}
+              disabled={images.length >= 4}
+            />
+            <button
+              className="flex flex-row gap-2 cursor-pointer"
+              onClick={handleAddImageClick}
+              type="button"
+              disabled={images.length >= 4}
+            >
+              <ImageIcon /> Add an image
+            </button>
+            <button className="bg-blue-500 text-white px-6 py-2 rounded-4xl cursor-pointer">
+              Post
+            </button>
+          </div>
+        </div>
+        <hr style={{ width: "90%", margin: "0 auto" }} />
+      </div>
+      <RightBar
+        session={{
+          user: {
+            name: session.user?.name ?? undefined,
+            image: session.user?.image ?? undefined,
+          },
+        }}
+      />
+    </div>
+  );
+}
