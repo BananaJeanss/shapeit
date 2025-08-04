@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import * as shapes from "@/src/components/shapes";
 import Image from "next/image";
-import { Session } from "next-auth";
 import { ImageSection } from "@/src/components/imageSection";
+import { toggleReaction } from "@/src/actions/posts";
+import type { ShapeType } from "@prisma/client";
 
 type PostTileProps = {
+  id: string;
   username?: string;
   userImage?: string;
   textContent?: string;
@@ -17,16 +19,58 @@ type PostTileProps = {
     diamond?: number;
     hexagon?: number;
   };
+  userReaction?: ShapeType | null;
 };
 
 export default function PostTile({
+  id,
   username,
   userImage,
   textContent,
   date,
   images,
   shapeCounts,
+  userReaction,
 }: PostTileProps) {
+  const [hoveredShape, setHoveredShape] = useState<ShapeType | null>(null);
+
+  const handleReaction = async (shape: ShapeType) => {
+    await toggleReaction(id, shape);
+  };
+
+  const getShapeColor = (shape: ShapeType, isHover = false) => {
+    const isReacted = userReaction === shape;
+
+    switch (shape) {
+      case "CIRCLE":
+        if (isReacted) {
+          return isHover ? "#059669" : "#10B981";
+        }
+        return isHover ? "#059669" : "#9CA3AF";
+      case "DIAMOND":
+        if (isReacted) {
+          return isHover ? "#E11D48" : "#F43F5E";
+        }
+        return isHover ? "#E11D48" : "#9CA3AF";
+      case "HEXAGON":
+        if (isReacted) {
+          return isHover ? "#D97706" : "#FBBF24";
+        }
+        return isHover ? "#D97706" : "#9CA3AF";
+      case "SQUARE":
+        if (isReacted) {
+          return isHover ? "#3730A3" : "#4F46E5";
+        }
+        return isHover ? "#3730A3" : "#9CA3AF";
+      case "TRIANGLE":
+        if (isReacted) {
+          return isHover ? "#EA580C" : "#F59E42";
+        }
+        return isHover ? "#EA580C" : "#9CA3AF";
+      default:
+        return isHover ? "#4B5563" : "#9CA3AF";
+    }
+  };
   return (
     <div className="border border-gray-300 rounded-xl p-4 m-8">
       <div className="flex flex-row items-center p-4 gap-4">
@@ -55,47 +99,72 @@ export default function PostTile({
         </div>
       </div>
       <div className="flex flex-row items-center justify-start mt-4">
-        <button className="text-white px-6 py-2 rounded-4xl cursor-pointer">
+        <button
+          className="text-white px-6 py-2 rounded-4xl cursor-pointer transition-colors"
+          onClick={() => handleReaction("TRIANGLE")}
+          onMouseEnter={() => setHoveredShape("TRIANGLE")}
+          onMouseLeave={() => setHoveredShape(null)}
+        >
           <span>
             <shapes.Triangle
-              className="inline mr-2 w-6 h-6 text-gray-600"
-              fill="#4B5563"
+              className="inline mr-2 w-6 h-6"
+              fill={getShapeColor("TRIANGLE", hoveredShape === "TRIANGLE")}
             />
             {shapeCounts?.triangle ?? 0}
           </span>
         </button>
-        <button className="text-white px-6 py-2 rounded-4xl cursor-pointer">
+        <button
+          className="text-white px-6 py-2 rounded-4xl cursor-pointer transition-colors"
+          onClick={() => handleReaction("CIRCLE")}
+          onMouseEnter={() => setHoveredShape("CIRCLE")}
+          onMouseLeave={() => setHoveredShape(null)}
+        >
           <span>
             <shapes.Circle
-              className="inline mr-2 w-6 h-6 text-gray-600"
-              fill="#4B5563"
+              className="inline mr-2 w-6 h-6"
+              fill={getShapeColor("CIRCLE", hoveredShape === "CIRCLE")}
             />
             {shapeCounts?.circle ?? 0}
           </span>
         </button>
-        <button className="text-white px-6 py-2 rounded-4xl cursor-pointer">
+        <button
+          className="text-white px-6 py-2 rounded-4xl cursor-pointer transition-colors"
+          onClick={() => handleReaction("SQUARE")}
+          onMouseEnter={() => setHoveredShape("SQUARE")}
+          onMouseLeave={() => setHoveredShape(null)}
+        >
           <span>
             <shapes.Square
-              className="inline mr-2 w-6 h-6 text-gray-600"
-              fill="#4B5563"
+              className="inline mr-2 w-6 h-6"
+              fill={getShapeColor("SQUARE", hoveredShape === "SQUARE")}
             />
             {shapeCounts?.square ?? 0}
           </span>
         </button>
-        <button className="text-white px-6 py-2 rounded-4xl cursor-pointer">
+        <button
+          className="text-white px-6 py-2 rounded-4xl cursor-pointer transition-colors"
+          onClick={() => handleReaction("DIAMOND")}
+          onMouseEnter={() => setHoveredShape("DIAMOND")}
+          onMouseLeave={() => setHoveredShape(null)}
+        >
           <span>
             <shapes.Diamond
-              className="inline mr-2 w-6 h-6 text-gray-600"
-              fill="#4B5563"
+              className="inline mr-2 w-6 h-6"
+              fill={getShapeColor("DIAMOND", hoveredShape === "DIAMOND")}
             />
             {shapeCounts?.diamond ?? 0}
           </span>
         </button>
-        <button className="text-white px-6 py-2 rounded-4xl cursor-pointer">
+        <button
+          className="text-white px-6 py-2 rounded-4xl cursor-pointer transition-colors"
+          onClick={() => handleReaction("HEXAGON")}
+          onMouseEnter={() => setHoveredShape("HEXAGON")}
+          onMouseLeave={() => setHoveredShape(null)}
+        >
           <span>
             <shapes.Hexagon
-              className="inline mr-2 w-6 h-6 text-gray-600"
-              fill="#4B5563"
+              className="inline mr-2 w-6 h-6"
+              fill={getShapeColor("HEXAGON", hoveredShape === "HEXAGON")}
             />
             {shapeCounts?.hexagon ?? 0}
           </span>

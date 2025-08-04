@@ -15,6 +15,8 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  posts         Post[]
+  reactions     Reaction[]
  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -57,4 +59,39 @@ model VerificationToken {
   expires    DateTime
  
   @@id([identifier, token])
+}
+
+model Post {
+  id          String   @id @default(cuid())
+  content     String
+  images      String[]
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  reactions   Reaction[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum ShapeType {
+  TRIANGLE
+  CIRCLE
+  SQUARE
+  DIAMOND
+  HEXAGON
+}
+
+model Reaction {
+  id        String    @id @default(cuid())
+  shape     ShapeType
+  userId    String
+  postId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  
+  // one user can only have one reaction per post
+  @@unique([userId, postId])
 }
