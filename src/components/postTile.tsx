@@ -197,7 +197,7 @@ export default function PostTile({
         </div>
       </div>
       <div className="flex flex-col mx-4 text-lg ">
-        <p>{textContent}</p>
+        <p className="break-all">{textContent}</p>
         <div className="flex flex-col items-center justify-center mt-4">
           {images && images.length > 0 && (
             <ImageSection images={images ?? []} />

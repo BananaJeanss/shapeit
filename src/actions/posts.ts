@@ -17,10 +17,21 @@ export async function createPost(formData: FormData) {
   const content = formData.get("content") as string;
   const imageFiles = formData.getAll("images") as File[];
 
+  // check if text/at least 1 image is provided
   if (!content?.trim()) {
     if (imageFiles.length === 0) {
       throw new Error("Post content or images are required");
     }
+  }
+
+  // check if exceeds 365 char limit
+  if (content.length > 365) {
+    throw new Error("Post content exceeds 365 character limit");
+  }
+
+  // allow max 4 images
+  if (imageFiles.length > 4) {
+    throw new Error("You can only upload up to 4 images");
   }
 
   try {

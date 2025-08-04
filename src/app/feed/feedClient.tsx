@@ -48,10 +48,17 @@ export function FeedClient({
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMorePosts, setHasMorePosts] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [characterCount, setCharacterCount] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const feedInputRef = useRef<FeedInputRef>(null);
   const loadingRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const CHARACTER_LIMIT = 365;
+
+  const handleTextChange = useCallback((text: string) => {
+    setCharacterCount(text.length);
+  }, []);
 
   const loadMorePosts = useCallback(async () => {
     if (isLoadingMore || !hasMorePosts) return;
@@ -133,6 +140,11 @@ export function FeedClient({
       }
     }
 
+    if (content && content.length > CHARACTER_LIMIT) {
+      toast.error(`Post exceeds character limit of ${CHARACTER_LIMIT}`);
+      return;
+    }
+
     setIsPosting(true);
     try {
       const formData = new FormData();
@@ -156,6 +168,7 @@ export function FeedClient({
 
       // clear the form
       feedInputRef.current?.clear();
+      setCharacterCount(0);
       previewImages.forEach((url) => URL.revokeObjectURL(url));
       setSelectedFiles([]);
       setPreviewImages([]);
@@ -189,6 +202,7 @@ export function FeedClient({
             <FeedInput
               ref={feedInputRef}
               userImage={session.user?.image ?? undefined}
+              onTextChange={handleTextChange}
             />
             {previewImages.length > 0 && (
               <div className="my-4 w-full flex flex-col items-center">
@@ -207,32 +221,39 @@ export function FeedClient({
                 </div>
               </div>
             )}
-            <div className="flex flex-row items-center justify-end mt-4 mx-2 gap-4 ">
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                hidden
-                ref={fileInputRef}
-                onChange={handleImageChange}
-                disabled={selectedFiles.length >= 4}
-              />
-              <button
-                className="flex flex-row gap-2 cursor-pointer"
-                onClick={handleAddImageClick}
-                type="button"
-                disabled={selectedFiles.length >= 4}
+            <div className="flex flex-row items-center justify-between mt-4 mx-2">
+              <div
+                className={`flex flex-row items-center self-center ${characterCount > CHARACTER_LIMIT ? "text-red-500" : "text-gray-500"}`}
               >
-                <ImageIcon /> Add an image
-              </button>
-              <button
-                className="bg-blue-500 text-white px-6 py-2 rounded-4xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                onClick={handlePost}
-                type="button"
-                disabled={isPosting}
-              >
-                {isPosting ? "Posting..." : "Post"}
-              </button>
+                {characterCount}/{CHARACTER_LIMIT} characters
+              </div>
+              <div className="flex flex-row items-center justify-end mx-2 gap-4 ">
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  hidden
+                  ref={fileInputRef}
+                  onChange={handleImageChange}
+                  disabled={selectedFiles.length >= 4}
+                />
+                <button
+                  className="flex flex-row gap-2 cursor-pointer"
+                  onClick={handleAddImageClick}
+                  type="button"
+                  disabled={selectedFiles.length >= 4}
+                >
+                  <ImageIcon /> Add an image
+                </button>
+                <button
+                  className="bg-blue-500 text-white px-6 py-2 rounded-4xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={handlePost}
+                  type="button"
+                  disabled={isPosting || characterCount > CHARACTER_LIMIT}
+                >
+                  {isPosting ? "Posting..." : "Post"}
+                </button>
+              </div>
             </div>
           </div>
           <hr style={{ width: "90%", margin: "0 auto" }} />{" "}
