@@ -10,6 +10,8 @@ import PostTile from "./postTile";
 import { createPost } from "@/src/actions/posts";
 import type { Session } from "next-auth";
 import type { ShapeType } from "@prisma/client";
+import toast from 'react-hot-toast';
+
 
 type PostType = {
   id: string;
@@ -73,14 +75,16 @@ export function FeedClient({
     const content = feedInputRef.current?.getValue();
 
     if (!content?.trim()) {
-      alert("You can't send an empty post!");
-      return;
+      if (selectedFiles.length === 0) {
+        toast.error("You can't post an empty post!");
+        return;
+      }
     }
 
     setIsPosting(true);
     try {
       const formData = new FormData();
-      formData.append("content", content);
+      formData.append("content", content ?? "");
 
       selectedFiles.forEach((file) => {
         formData.append("images", file);
@@ -95,7 +99,7 @@ export function FeedClient({
       setPreviewImages([]);
     } catch (error) {
       console.error("Error creating post:", error);
-      alert("Failed to create post. Please try again.");
+      toast.error("Failed to create post. Please try again.");
     } finally {
       setIsPosting(false);
     }
