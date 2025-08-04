@@ -4,10 +4,13 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Image from "next/image";
 import { Github } from "lucide-react";
-import PostTile from "@/src/components/postTile";
+import { ProfileClient } from "./profileClient";
+import { Providers } from "@/src/components/providers";
+import { prisma } from "@/prisma";
 import {
   getUserByGithubUsername,
   getUserGithubData,
+  getPostsWithReactionCountsByUsername,
 } from "@/src/actions/posts";
 import { notFound } from "next/navigation";
 
@@ -33,6 +36,21 @@ export default async function Profile({
   const userGithubData = user.githubUsername
     ? await getUserGithubData(user.githubUsername)
     : null;
+
+  // get current user ID for reaction checking
+  const currentUser = session.user.email
+    ? await prisma.user.findUnique({
+        where: { email: session.user.email },
+      })
+    : null;
+
+  // get initial posts by this user
+  const initialPosts = await getPostsWithReactionCountsByUsername(
+    userName,
+    currentUser?.id,
+    1,
+    20
+  );
 
   return (
     <div className="flex flex-row w-screen h-screen overflow-hidden">
@@ -76,7 +94,13 @@ export default async function Profile({
         </div>
         <hr className="w-[90%] mx-auto my-4" />
         <div className="flex-1 overflow-y-auto">
-          <PostTile id={"1"} authorId={"1"} />
+          <Providers session={session}>
+            <ProfileClient
+              username={userName}
+              currentUserId={currentUser?.id}
+              initialPosts={initialPosts}
+            />
+          </Providers>
         </div>
       </div>
       <div className="w-1/3 flex-shrink-0">

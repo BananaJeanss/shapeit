@@ -263,6 +263,132 @@ export async function getPostsWithReactionCounts(
   }
 }
 
+export async function getPostsWithReactionCountsByUsername(
+  username: string,
+  currentUserId?: string,
+  page: number = 1,
+  limit: number = 20
+) {
+  const skip = (page - 1) * limit;
+
+  try {
+    // get user by username
+    const user = await prisma.user.findFirst({
+      where: { githubUsername: username },
+      select: { id: true },
+    });
+
+    if (!user) {
+      return [];
+    }
+
+    // get posts only by this user with basic info
+    const posts = await prisma.post.findMany({
+      skip,
+      take: limit,
+      where: {
+        authorId: user.id,
+      },
+      include: {
+        author: {
+          select: {
+            name: true,
+            image: true,
+            githubUsername: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    // get reaction counts efficiently using aggregation
+    const postIds = posts.map((post) => post.id);
+
+    if (postIds.length === 0) {
+      return [];
+    }
+
+    // get shape counts for all posts
+    const reactionCounts = await prisma.reaction.groupBy({
+      by: ["postId", "shape"],
+      where: {
+        postId: {
+          in: postIds,
+        },
+      },
+      _count: {
+        id: true,
+      },
+    });
+
+    const userReactions = currentUserId
+      ? await prisma.reaction.findMany({
+          where: {
+            userId: currentUserId,
+            postId: {
+              in: postIds,
+            },
+          },
+          select: {
+            postId: true,
+            shape: true,
+          },
+        })
+      : [];
+
+    const reactionCountMap = new Map<string, Record<ShapeType, number>>();
+    postIds.forEach((postId) => {
+      reactionCountMap.set(postId, {
+        TRIANGLE: 0,
+        CIRCLE: 0,
+        SQUARE: 0,
+        DIAMOND: 0,
+        HEXAGON: 0,
+      });
+    });
+
+    reactionCounts.forEach(({ postId, shape, _count }) => {
+      const counts = reactionCountMap.get(postId);
+      if (counts) {
+        counts[shape] = _count.id;
+      }
+    });
+
+    // user reaction map (what the current viewing user has reacted to)
+    const userReactionMap = new Map<string, ShapeType>();
+    userReactions.forEach(({ postId, shape }) => {
+      userReactionMap.set(postId, shape);
+    });
+
+    return posts.map((post) => {
+      const shapeCounts = reactionCountMap.get(post.id) || {
+        TRIANGLE: 0,
+        CIRCLE: 0,
+        SQUARE: 0,
+        DIAMOND: 0,
+        HEXAGON: 0,
+      };
+
+      return {
+        ...post,
+        shapeCounts: {
+          triangle: shapeCounts.TRIANGLE,
+          circle: shapeCounts.CIRCLE,
+          square: shapeCounts.SQUARE,
+          diamond: shapeCounts.DIAMOND,
+          hexagon: shapeCounts.HEXAGON,
+        },
+        userReaction: userReactionMap.get(post.id) || null,
+      };
+    });
+  } catch (error) {
+    console.error("Error fetching posts by username:", error);
+    return [];
+  }
+}
+
 export async function deletePost(postId: string) {
   const session = await auth();
 
