@@ -37,13 +37,25 @@ export function ImageSection({ images }: { images: string[] }) {
       let displayWidth, displayHeight;
 
       if (aspectRatio > 1) {
-        displayWidth = Math.max(minWidth, Math.min(maxWidth, img.naturalWidth));
+        // for wide images, prioritize fitting within maxWidth
+        displayWidth = Math.min(maxWidth, img.naturalWidth);
         displayHeight = displayWidth / aspectRatio;
 
         // if height is too small, adjust based on min height
         if (displayHeight < minHeight) {
           displayHeight = minHeight;
           displayWidth = displayHeight * aspectRatio;
+          // make sure it doesn't exceed maxWidth
+          if (displayWidth > maxWidth) {
+            displayWidth = maxWidth;
+            displayHeight = displayWidth / aspectRatio;
+          }
+        }
+
+        // apply minimum width constraint last
+        if (displayWidth < minWidth) {
+          displayWidth = minWidth;
+          displayHeight = displayWidth / aspectRatio;
         }
       } else {
         displayHeight = Math.max(
@@ -55,6 +67,12 @@ export function ImageSection({ images }: { images: string[] }) {
         // if width becomes too small, adjust based on min width
         if (displayWidth < minWidth) {
           displayWidth = minWidth;
+          displayHeight = displayWidth / aspectRatio;
+        }
+
+        // also check that it doesn't exceed maxWidth for tall images
+        if (displayWidth > maxWidth) {
+          displayWidth = maxWidth;
           displayHeight = displayWidth / aspectRatio;
         }
       }
