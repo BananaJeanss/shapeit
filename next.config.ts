@@ -5,25 +5,25 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'github.com',
+        protocol: "https",
+        hostname: "github.com",
       },
       {
-        protocol: 'https',
-        hostname: 'avatars.githubusercontent.com',
+        protocol: "https",
+        hostname: "avatars.githubusercontent.com",
       },
       {
-        protocol: 'https',
-        hostname: 'raw.githubusercontent.com',
+        protocol: "https",
+        hostname: "raw.githubusercontent.com",
       },
       {
-        protocol: 'https',
-        hostname: '*.public.blob.vercel-storage.com',
-        pathname: '/**',
-      }
+        protocol: "https",
+        hostname: "*.public.blob.vercel-storage.com",
+        pathname: "/**",
+      },
     ],
     dangerouslyAllowSVG: true,
-    contentDispositionType: 'attachment',
+    contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 };

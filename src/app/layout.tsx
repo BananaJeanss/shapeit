@@ -33,9 +33,9 @@ export default function RootLayout({
             duration: 3000,
             style: {
               fontFamily: "var(--font-red-hat-display)",
-              background: '#333',
-              color: '#fff',
-              border: '1px solid #999',
+              background: "#333",
+              color: "#fff",
+              border: "1px solid #999",
             },
           }}
         />
