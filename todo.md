@@ -1,7 +1,6 @@
 # shapeit Todo list
 
 ratelimits
-lightbox
 add toast notifications
 add a delete button
 add instant feedback cause apis are slow and allat, e.g. loading, instant reactions.
