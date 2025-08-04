@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { FeedClient } from "./feedClient";
 import { getPostsWithReactionCounts } from "@/src/actions/posts";
 import { prisma } from "@/prisma";
+import { Providers } from "@/src/components/providers";
 
 export default async function Feed() {
   const session = await auth();
@@ -23,5 +24,13 @@ export default async function Feed() {
     currentUser?.id
   );
 
-  return <FeedClient session={session} initialPosts={postsWithUserReactions} />;
+  return (
+    <Providers session={session}>
+      <FeedClient
+        session={session}
+        initialPosts={postsWithUserReactions}
+        currentUserId={currentUser?.id}
+      />
+    </Providers>
+  );
 }

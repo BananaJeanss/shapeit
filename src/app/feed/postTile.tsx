@@ -1,12 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import * as shapes from "@/src/components/shapes";
 import Image from "next/image";
 import { ImageSection } from "@/src/components/imageSection";
-import { toggleReaction } from "@/src/actions/posts";
+import { toggleReaction, deletePost, reportPost } from "@/src/actions/posts";
 import type { ShapeType } from "@prisma/client";
+import { Ellipsis, Trash2, Flag } from "lucide-react";
+import toast from "react-hot-toast";
 
 type PostTileProps = {
   id: string;
+  authorId: string;
+  currentUserId?: string;
   username?: string;
   userImage?: string;
   textContent?: string;
@@ -24,6 +28,8 @@ type PostTileProps = {
 
 export default function PostTile({
   id,
+  authorId,
+  currentUserId,
   username,
   userImage,
   textContent,
@@ -33,9 +39,73 @@ export default function PostTile({
   userReaction,
 }: PostTileProps) {
   const [hoveredShape, setHoveredShape] = useState<ShapeType | null>(null);
+  const [showMenu, setShowMenu] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowMenu(false);
+      }
+    };
+
+    if (showMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showMenu]);
+
+  const isOwner = currentUserId && authorId === currentUserId;
 
   const handleReaction = async (shape: ShapeType) => {
-    await toggleReaction(id, shape);
+    try {
+      await toggleReaction(id, shape);
+    } catch (error) {
+      toast.error("Failed to toggle reaction. Please try again.");
+      console.error("Error toggling reaction:", error);
+    }
+  };
+
+  const handleDeletePost = async () => {
+    if (
+      !confirm(
+        "Are you sure you want to delete this post? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      await deletePost(id);
+      setShowMenu(false);
+    } catch (error) {
+      toast.error("Failed to delete post. Please try again.");
+      console.error("Error deleting post:", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleReportPost = async () => {
+    const reason = prompt("Please provide a reason for reporting this post:");
+    if (!reason?.trim()) return;
+
+    try {
+      await reportPost(id, reason);
+      toast.success(
+        "Post reported successfully. (No actual functionality yet so this goes into the shredder)"
+      );
+      setShowMenu(false);
+    } catch (error) {
+      toast.error("Failed to report post. Please try again.");
+      console.error("Error reporting post:", error);
+    }
   };
 
   const getShapeColor = (shape: ShapeType, isHover = false) => {
@@ -72,7 +142,43 @@ export default function PostTile({
     }
   };
   return (
-    <div className="border border-gray-300 rounded-xl p-4 m-8">
+    <div className="relative border border-gray-300 rounded-xl p-4 m-8">
+      <div className="absolute top-4 right-4">
+        <div className="relative" ref={menuRef}>
+          <button
+            className="cursor-pointer p-2 hover:bg-gray-100 rounded-full transition-colors"
+            onClick={() => setShowMenu(!showMenu)}
+            disabled={isDeleting}
+          >
+            <Ellipsis className="w-5 h-5 text-gray-600" />
+          </button>
+
+          {showMenu && (
+            <div className="absolute right-0 top-full mt-1 bg-gray-900 border border-gray-200 rounded-lg shadow-lg py-1 min-w-[160px] z-10">
+              {isOwner && (
+                <button
+                  onClick={handleDeletePost}
+                  disabled={isDeleting}
+                  className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 flex items-center gap-2 disabled:opacity-50"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  {isDeleting ? "Deleting..." : "Delete Post"}
+                </button>
+              )}
+
+              {!isOwner && (
+                <button
+                  onClick={handleReportPost}
+                  className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 flex items-center gap-2"
+                >
+                  <Flag className="w-4 h-4" />
+                  Report Post
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
       <div className="flex flex-row items-center p-4 gap-4">
         <Image
           src={userImage ?? ""}

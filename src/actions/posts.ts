@@ -245,3 +245,55 @@ export async function getPostsWithReactionCounts(userId?: string) {
     return [];
   }
 }
+
+export async function deletePost(postId: string) {
+  const session = await auth();
+
+  if (!session?.user?.email) {
+    redirect("/api/auth/signin");
+  }
+
+  try {
+    // check if the user is the author of the post
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      select: { authorId: true },
+    });
+
+    if (!post) {
+      throw new Error("Post not found");
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true },
+    });
+
+    if (!user || user.id !== post.authorId) {
+      throw new Error("Unauthorized: You can only delete your own posts");
+    }
+
+    // delete the post, reactions deleted via cascade
+    await prisma.post.delete({
+      where: { id: postId },
+    });
+
+    revalidatePath("/feed");
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    throw error;
+  }
+}
+
+export async function reportPost(postId: string, reason: string) {
+  // todo, this has no actual functionality rn
+  const session = await auth();
+
+  if (!session?.user?.email) {
+    redirect("/");
+  }
+
+  console.log(
+    `Post ${postId} reported by ${session.user.email} for: ${reason}`
+  );
+}

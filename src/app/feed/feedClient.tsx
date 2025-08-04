@@ -10,13 +10,13 @@ import PostTile from "./postTile";
 import { createPost } from "@/src/actions/posts";
 import type { Session } from "next-auth";
 import type { ShapeType } from "@prisma/client";
-import toast from 'react-hot-toast';
-
+import toast from "react-hot-toast";
 
 type PostType = {
   id: string;
   content: string;
   images: string[];
+  authorId: string;
   createdAt: Date;
   author: {
     name: string | null;
@@ -35,9 +35,11 @@ type PostType = {
 export function FeedClient({
   session,
   initialPosts,
+  currentUserId,
 }: {
   session: Session;
   initialPosts: PostType[];
+  currentUserId?: string;
 }): React.JSX.Element {
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -175,6 +177,8 @@ export function FeedClient({
                 <PostTile
                   key={post.id}
                   id={post.id}
+                  authorId={post.authorId}
+                  currentUserId={currentUserId}
                   username={post.author.name ?? undefined}
                   userImage={post.author.image ?? undefined}
                   textContent={post.content}
