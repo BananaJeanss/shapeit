@@ -2,7 +2,6 @@
 
 import { auth } from "@/auth";
 import { prisma } from "@/prisma";
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { ShapeType } from "@prisma/client";
 import { put, head } from "@vercel/blob";
@@ -19,7 +18,9 @@ export async function createPost(formData: FormData) {
   const imageFiles = formData.getAll("images") as File[];
 
   if (!content?.trim()) {
-    throw new Error("Post content is required");
+    if (imageFiles.length === 0) {
+      throw new Error("Post content or images are required");
+    }
   }
 
   try {
@@ -76,8 +77,6 @@ export async function createPost(formData: FormData) {
         },
       },
     });
-
-    revalidatePath("/feed");
   } catch (error) {
     console.error("Error creating post:", error);
     throw new Error("Failed to create post");
@@ -139,36 +138,29 @@ export async function toggleReaction(postId: string, shape: ShapeType) {
         },
       });
     }
-
-    revalidatePath("/feed");
   } catch (error) {
     console.error("Error toggling reaction:", error);
     throw new Error("Failed to toggle reaction");
   }
 }
 
-export async function getPosts() {
+export async function getPostsWithReactionCounts(
+  userId?: string,
+  page: number = 1,
+  limit: number = 20
+) {
+  const skip = (page - 1) * limit;
+
   try {
+    // get posts with basic info
     const posts = await prisma.post.findMany({
+      skip,
+      take: limit,
       include: {
         author: {
           select: {
             name: true,
             image: true,
-          },
-        },
-        reactions: {
-          include: {
-            user: {
-              select: {
-                id: true,
-              },
-            },
-          },
-        },
-        _count: {
-          select: {
-            reactions: true,
           },
         },
       },
@@ -177,67 +169,80 @@ export async function getPosts() {
       },
     });
 
-    return posts;
-  } catch (error) {
-    console.error("Error fetching posts:", error);
-    return [];
-  }
-}
+    // get reaction counts efficiently using aggregation
+    const postIds = posts.map((post) => post.id);
 
-export async function getPostsWithReactionCounts(userId?: string) {
-  try {
-    const posts = await prisma.post.findMany({
-      include: {
-        author: {
-          select: {
-            name: true,
-            image: true,
-          },
-        },
-        reactions: {
-          include: {
-            user: {
-              select: {
-                id: true,
-              },
-            },
-          },
+    // get shape counts for all posts
+    const reactionCounts = await prisma.reaction.groupBy({
+      by: ["postId", "shape"],
+      where: {
+        postId: {
+          in: postIds,
         },
       },
-      orderBy: {
-        createdAt: "desc",
+      _count: {
+        id: true,
       },
     });
 
-    type Reaction = {
-      id: string;
-      shape: ShapeType;
-      userId: string;
-      postId: string;
-      user: {
-        id: string;
+    const userReactions = userId
+      ? await prisma.reaction.findMany({
+          where: {
+            userId,
+            postId: {
+              in: postIds,
+            },
+          },
+          select: {
+            postId: true,
+            shape: true,
+          },
+        })
+      : [];
+
+    const reactionCountMap = new Map<string, Record<ShapeType, number>>();
+    postIds.forEach((postId) => {
+      reactionCountMap.set(postId, {
+        TRIANGLE: 0,
+        CIRCLE: 0,
+        SQUARE: 0,
+        DIAMOND: 0,
+        HEXAGON: 0,
+      });
+    });
+
+    reactionCounts.forEach(({ postId, shape, _count }) => {
+      const counts = reactionCountMap.get(postId);
+      if (counts) {
+        counts[shape] = _count.id;
+      }
+    });
+
+    // user reaction map
+    const userReactionMap = new Map<string, ShapeType>();
+    userReactions.forEach(({ postId, shape }) => {
+      userReactionMap.set(postId, shape);
+    });
+
+    return posts.map((post) => {
+      const shapeCounts = reactionCountMap.get(post.id) || {
+        TRIANGLE: 0,
+        CIRCLE: 0,
+        SQUARE: 0,
+        DIAMOND: 0,
+        HEXAGON: 0,
       };
-    };
-
-    type PostWithReactions = (typeof posts)[number] & {
-      reactions: Reaction[];
-    };
-
-    return posts.map((post: PostWithReactions) => {
-      const userReaction = userId
-        ? post.reactions.find((r) => r.userId === userId)?.shape || null
-        : null;
 
       return {
         ...post,
         shapeCounts: {
-          triangle: post.reactions.filter((r) => r.shape === "TRIANGLE").length,
-          circle: post.reactions.filter((r) => r.shape === "CIRCLE").length,
-          square: post.reactions.filter((r) => r.shape === "SQUARE").length,
-          diamond: post.reactions.filter((r) => r.shape === "DIAMOND").length,
-          hexagon: post.reactions.filter((r) => r.shape === "HEXAGON").length,
+          triangle: shapeCounts.TRIANGLE,
+          circle: shapeCounts.CIRCLE,
+          square: shapeCounts.SQUARE,
+          diamond: shapeCounts.DIAMOND,
+          hexagon: shapeCounts.HEXAGON,
         },
-        userReaction,
+        userReaction: userReactionMap.get(post.id) || null,
       };
     });
   } catch (error) {
@@ -277,8 +282,6 @@ export async function deletePost(postId: string) {
     await prisma.post.delete({
       where: { id: postId },
     });
-
-    revalidatePath("/feed");
   } catch (error) {
     console.error("Error deleting post:", error);
     throw error;
@@ -296,4 +299,13 @@ export async function reportPost(postId: string, reason: string) {
   console.log(
     `Post ${postId} reported by ${session.user.email} for: ${reason}`
   );
+}
+
+export async function getTotalPostCount(): Promise<number> {
+  try {
+    return await prisma.post.count();
+  } catch (error) {
+    console.error("Error fetching total post count:", error);
+    return 0;
+  }
 }

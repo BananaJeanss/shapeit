@@ -1,6 +1,7 @@
 # shapeit Todo list
 
 ratelimits
+fix handling very wide images
 a custom report form instead of built in browser one
 add handling for when neon postgres fails for whatever reason (seems to be doing it often)
 add a new post button in sidebar
