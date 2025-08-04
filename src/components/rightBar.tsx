@@ -1,17 +1,18 @@
 import React from "react";
 import Image from "next/image";
-import { LogOut, Settings, User } from "lucide-react";
+import Link from "next/link";
+import { HomeIcon, LogOut, Settings, User } from "lucide-react";
 import { signOutAction } from "@/src/actions/auth";
 
 export const RightBar = ({
   session,
 }: {
-  session: { user: { name?: string; image?: string } };
+  session: { user: { name?: string; image?: string; githubUsername?: string } };
 }) => (
   <div className="flex flex-col items-center justify-center flex-1 h-full gap-8">
     <div className="border border-gray-300 p-4 rounded-2xl flex flex-row items-center justify-center gap-4">
       <h3 className="text-2xl font-semibold mb-0 self-center">
-        @{session.user.name || "Anonymous User"}
+        @{session.user.githubUsername || "Anonymous User"}
       </h3>
       <Image
         src={session.user.image || ""}
@@ -22,14 +23,27 @@ export const RightBar = ({
       />
     </div>
     <div className="flex flex-col p-8 gap-4">
-      <div className="hover:cursor-pointer flex items-center text-lg ">
+      <Link
+        href="/feed"
+        className="flex items-center text-lg hover:cursor-pointer"
+      >
+        <HomeIcon className="inline mr-2" />
+        Feed
+      </Link>
+      <Link
+        href={`/user/${session.user.githubUsername}`}
+        className="flex items-center text-lg hover:cursor-pointer"
+      >
         <User className="inline mr-2" />
         Profile
-      </div>
-      <div className="hover:cursor-pointer flex items-center text-lg ">
+      </Link>
+      <Link
+        href="/settings"
+        className="flex items-center text-lg hover:cursor-pointer"
+      >
         <Settings className="inline mr-2" />
         Settings
-      </div>
+      </Link>
     </div>
     <form action={signOutAction}>
       <button className="border border-gray-300 bg-white text-black rounded-4xl py-2 px-12 hover:cursor-pointer">

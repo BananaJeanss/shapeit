@@ -1,6 +1,9 @@
+"use client";
+
 import React, { useState, useRef, useEffect } from "react";
 import * as shapes from "@/src/components/shapes";
 import Image from "next/image";
+import Link from "next/link";
 import { ImageSection } from "@/src/components/imageSection";
 import { toggleReaction, deletePost, reportPost } from "@/src/actions/posts";
 import type { ShapeType } from "@prisma/client";
@@ -12,6 +15,7 @@ type PostTileProps = {
   authorId: string;
   currentUserId?: string;
   username?: string;
+  githubUsername?: string;
   userImage?: string;
   textContent?: string;
   date?: string;
@@ -31,6 +35,7 @@ export default function PostTile({
   authorId,
   currentUserId,
   username,
+  githubUsername,
   userImage,
   textContent,
   date,
@@ -188,8 +193,12 @@ export default function PostTile({
           className="w-12 h-12 rounded-full"
         />
         <div className="flex flex-col items-start ">
-          <h3 className="text-xl font-semibold mb-0">
-            @{username ?? "Anonymous User"}
+          <h3 className="text-xl font-semibold mb-0 ">
+            {githubUsername ? (
+              <Link href={`/user/${githubUsername}`}>@{githubUsername}</Link>
+            ) : (
+              `@${username ?? "Anonymous User"}`
+            )}
           </h3>
           <div className="flex flex-row items-center justify-start">
             <p className="text-gray-600 text-sm">{date}</p>

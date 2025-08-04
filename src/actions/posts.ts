@@ -172,6 +172,7 @@ export async function getPostsWithReactionCounts(
           select: {
             name: true,
             image: true,
+            githubUsername: true,
           },
         },
       },
@@ -318,5 +319,52 @@ export async function getTotalPostCount(): Promise<number> {
   } catch (error) {
     console.error("Error fetching total post count:", error);
     return 0;
+  }
+}
+
+export async function getUserByGithubUsername(githubUsername: string) {
+  try {
+    const user = await prisma.user.findFirst({
+      where: { githubUsername },
+      select: {
+        id: true,
+        name: true,
+        image: true,
+        email: true,
+        githubUsername: true,
+      },
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    return user;
+  } catch (error) {
+    console.error("Error fetching user by GitHub username:", error);
+    throw error;
+  }
+}
+
+export async function getUserGithubData(name: string) {
+  try {
+    const response = await fetch(`https://api.github.com/users/${name}`, {
+      headers: {
+        "User-Agent": "Shapeot-App",
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`GitHub API error: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return {
+      name: data.name || name,
+      bio: data.bio || "",
+      avatarUrl: data.avatar_url || "",
+      htmlUrl: data.html_url || "",
+    };
+  } catch (error) {
+    console.error("Error fetching GitHub user data:", error);
+    return null;
   }
 }

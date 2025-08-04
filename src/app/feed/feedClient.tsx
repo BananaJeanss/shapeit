@@ -21,6 +21,7 @@ type PostType = {
   author: {
     name: string | null;
     image: string | null;
+    githubUsername: string | null;
   };
   shapeCounts: {
     triangle: number;
@@ -196,7 +197,7 @@ export function FeedClient({
       </div>
       <div className="flex flex-col border-r border-gray-300 w-1/3 flex-shrink-0 h-full">
         <h2 className="text-4xl font-semibold mx-8 my-4">Feed</h2>
-        <hr style={{ width: "90%", margin: "0 auto" }} />
+        <hr className="w-[90%] mx-auto" />
         <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
           <div className="flex flex-col m-4 p-5 rounded-md w-4/4 mx-auto align-middle">
             <FeedInput
@@ -272,6 +273,7 @@ export function FeedClient({
                   authorId={post.authorId}
                   currentUserId={currentUserId}
                   username={post.author.name ?? undefined}
+                  githubUsername={post.author.githubUsername ?? undefined}
                   userImage={post.author.image ?? undefined}
                   textContent={post.content}
                   date={`${dateStr} ${timeStr}`}
@@ -306,6 +308,7 @@ export function FeedClient({
             user: {
               name: session.user?.name ?? undefined,
               image: session.user?.image ?? undefined,
+              githubUsername: session.user?.githubUsername ?? undefined,
             },
           }}
         />
