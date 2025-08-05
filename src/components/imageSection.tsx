@@ -26,10 +26,11 @@ export function ImageSection({ images }: { images: string[] }) {
     const img = new window.Image();
     img.onload = () => {
       // calculate display size maintaining aspect ratio
-      const maxWidth = 400;
-      const maxHeight = 400;
+      const viewportWidth = Math.min(window.innerWidth - 32, 400);
+      const maxWidth = viewportWidth;
+      const maxHeight = Math.min(window.innerHeight * 0.6, 400);
       // min heights cause u dont want it to be unreadable
-      const minWidth = 200;
+      const minWidth = Math.min(200, viewportWidth * 0.8);
       const minHeight = 150;
 
       const aspectRatio = img.naturalWidth / img.naturalHeight;
@@ -109,7 +110,7 @@ export function ImageSection({ images }: { images: string[] }) {
           />
         </div>
         <button
-          className="fixed top-4 right-4 text-white text-2xl border rounded-full bg-black/50 hover:bg-black/70 transition-colors w-10 h-10 flex items-center justify-center z-[60]"
+          className="fixed cursor-pointer top-4 right-4 text-white text-2xl border rounded-full bg-black/50 hover:bg-black/70 transition-colors w-10 h-10 flex items-center justify-center z-[60]"
           onClick={closeLightbox}
           aria-label="Close"
         >
@@ -131,7 +132,7 @@ export function ImageSection({ images }: { images: string[] }) {
       unoptimized={src.startsWith("data:")}
       className={`object-cover cursor-pointer ${props.className ?? ""}`}
       onClick={() => openLightbox(i)}
-      sizes="(max-width: 400px) 100vw, 400px"
+      sizes="(max-width: 768px) 50vw, (max-width: 400px) 100vw, 200px"
     />
   );
 
@@ -139,7 +140,7 @@ export function ImageSection({ images }: { images: string[] }) {
   if (count === 1) {
     if (!singleImageDimensions) {
       return (
-        <div className="w-[400px] h-[225px] rounded-lg bg-gray-200 animate-pulse" />
+        <div className="max-w-[400px] w-full h-[225px] rounded-lg bg-gray-200 animate-pulse" />
       );
     }
 
@@ -170,7 +171,7 @@ export function ImageSection({ images }: { images: string[] }) {
   if (count === 2) {
     return (
       <>
-        <div className="w-[400px] h-[225px] rounded-lg overflow-hidden grid grid-cols-2 gap-1">
+        <div className="max-w-[400px] w-full h-[225px] rounded-lg overflow-hidden grid grid-cols-2 gap-1">
           <div className="relative">{renderImage(images[0], 0)}</div>
           <div className="relative">{renderImage(images[1], 1)}</div>
         </div>
@@ -182,7 +183,7 @@ export function ImageSection({ images }: { images: string[] }) {
   if (count === 3) {
     return (
       <>
-        <div className="w-[400px] h-[225px] rounded-lg overflow-hidden grid grid-cols-2 grid-rows-2 gap-1">
+        <div className="max-w-[400px] w-full h-[225px] rounded-lg overflow-hidden grid grid-cols-2 grid-rows-2 gap-1">
           <div className="relative row-span-2">{renderImage(images[0], 0)}</div>
           <div className="relative">{renderImage(images[1], 1)}</div>
           <div className="relative">{renderImage(images[2], 2)}</div>
@@ -194,7 +195,7 @@ export function ImageSection({ images }: { images: string[] }) {
 
   return (
     <>
-      <div className="w-[400px] h-[225px] rounded-lg overflow-hidden grid grid-cols-2 grid-rows-2 gap-1">
+      <div className="max-w-[400px] w-full h-[225px] rounded-lg overflow-hidden grid grid-cols-2 grid-rows-2 gap-1">
         <div className="relative">{renderImage(images[0], 0)}</div>
         <div className="relative">{renderImage(images[1], 1)}</div>
         <div className="relative">{renderImage(images[2], 2)}</div>
