@@ -1,44 +1,98 @@
-# shapeit
+<div align="center">
+<h1>
+<img src="public/favicon.png" alt="shapeit logo" width="128" height="128"> 
+<br> 
+shapeit
 
-A social media where you react with shapes
+</h1>
 
-readme yet to be written
+[![Vercel](https://img.shields.io/badge/vercel-%23000000.svg?style=for-the-badge&logo=vercel&logoColor=white)](https://shapeit-murex.vercel.app)
+[![Deployment](https://img.shields.io/github/deployments/BananaJeanss/shapeit/Production?style=for-the-badge&logo=vercel)](https://github.com/BananaJeanss/shapeit/deployments)
+[![License](https://img.shields.io/github/license/BananaJeanss/shapeit?style=for-the-badge)](https://github.com/BananaJeanss/shapeit/blob/main/LICENSE)
+[![GitHub Stars](https://img.shields.io/github/stars/BananaJeanss/shapeit?style=for-the-badge)](https://github.com/BananaJeanss/shapeit/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/BananaJeanss/shapeit?style=for-the-badge)](https://github.com/BananaJeanss/shapeit/network/members)
+[![GitHub Issues](https://img.shields.io/github/issues/BananaJeanss/shapeit?style=for-the-badge)](https://github.com/BananaJeanss/shapeit/issues)
+[![Repo Size](https://img.shields.io/github/repo-size/bananajeanss/shapeit?style=for-the-badge)](https://github.com/BananaJeanss/shapeit)
+
+https://shapeit-murex.vercel.app
+
+<b>A social media where you react with shapes</b>
+
+</div>
 
 ---
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Description
 
-## Getting Started
+shapeit is a pretty basic social media app where you can post your thoughts, media, and react with shapes, and supports login via GitHub.
 
-First, run the development server:
+Built on next.js, react, and tailwindcss.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Basic OAuth login with GitHub
+- Post thoughts up to 365 characters, and up to 4 images (PNGs, GIFs, SVGs, WEBPs, and more probably)
+- React with shapes (Triangle, Circle, Square, Diamond, Hexagon)
+- Profile pages with user PFP, username, and bio from GitHub, as well as a link to the GitHub profile, and user posts display.
+- Vercel integration with Vercel Blobs, Neon Postgres, Speed Insights, and Analytics.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Regular Usage Quick Start
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Go to https://shapeit-murex.vercel.app.
+2. Login with your GitHub account.
+3. Start posting, reacting, etc!
 
-## Learn More
+> [!NOTE]
+> There's a 10 post per 30 minutes ratelimit set, and you can upload up to 16mb total per post.
 
-To learn more about Next.js, take a look at the following resources:
+## Development Quick Start
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Install required dependencies:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   ```bash
+   npm install
+   ```
 
-## Deploy on Vercel
+2. Setup environment variables:
+   ```bash
+   cp .env.example .env
+   cp .env.local.example .env.local
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+> [!IMPORTANT]
+> Make sure you actually put the required variables in `.env` and `.env.local` files.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+3. Start the development server:
+
+   ```bash
+   npm run dev
+   ```
+
+4. Open your browser and go to [http://localhost:3000](http://localhost:3000).
+
+## Contributing
+
+Contributions are welcome! Feel free to do the following:
+
+- Open an issue if you spot an bug/issue.
+- Open a issue if you have a feature request.
+- Fork the repository and open a pull request if you want to contribute code.
+- Be respectful and use common sense.
+
+### Contributors
+
+[![contributors](https://contributors-img.web.app/image?repo=BananaJeanss/shapeit)](https://github.com/BananaJeanss/shapeit/graphs/contributors)
+
+## License
+
+This project is licensed under GPL-3.0 License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+<div align="center">
+  <a href="https://shipwrecked.hackclub.com/?t=ghrm" target="_blank">
+    <img src="https://hc-cdn.hel1.your-objectstorage.com/s/v3/739361f1d440b17fc9e2f74e49fc185d86cbec14_badge.png" 
+         alt="This project is part of Shipwrecked, the world's first hackathon on an island!" 
+         style="width: 35%;">
+  </a>
+</div>
