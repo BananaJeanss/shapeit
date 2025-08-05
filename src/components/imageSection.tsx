@@ -25,57 +25,30 @@ export function ImageSection({ images }: { images: string[] }) {
 
     const img = new window.Image();
     img.onload = () => {
-      // calculate display size maintaining aspect ratio
-      const viewportWidth = Math.min(window.innerWidth - 32, 400);
-      const maxWidth = viewportWidth;
-      const maxHeight = Math.min(window.innerHeight * 0.6, 400);
-      // min heights cause u dont want it to be unreadable
-      const minWidth = Math.min(200, viewportWidth * 0.8);
-      const minHeight = 150;
-
       const aspectRatio = img.naturalWidth / img.naturalHeight;
+
+      const maxWidth = 400;
+      const maxHeight = 300;
+      const minHeight = 150; // min height
 
       let displayWidth, displayHeight;
 
       if (aspectRatio > 1) {
-        // for wide images, prioritize fitting within maxWidth
-        displayWidth = Math.min(maxWidth, img.naturalWidth);
-        displayHeight = displayWidth / aspectRatio;
+        // for wide images fit to width
+        displayWidth = maxWidth;
+        displayHeight = Math.max(minHeight, displayWidth / aspectRatio);
 
-        // if height is too small, adjust based on min height
-        if (displayHeight < minHeight) {
-          displayHeight = minHeight;
+        if (displayHeight > maxHeight) {
+          displayHeight = maxHeight;
           displayWidth = displayHeight * aspectRatio;
-          // make sure it doesn't exceed maxWidth
-          if (displayWidth > maxWidth) {
-            displayWidth = maxWidth;
-            displayHeight = displayWidth / aspectRatio;
-          }
-        }
-
-        // apply minimum width constraint last
-        if (displayWidth < minWidth) {
-          displayWidth = minWidth;
-          displayHeight = displayWidth / aspectRatio;
         }
       } else {
-        displayHeight = Math.max(
-          minHeight,
-          Math.min(maxHeight, img.naturalHeight)
+        // for tall images fit to height
+        displayHeight = Math.min(
+          maxHeight,
+          Math.max(minHeight, maxWidth / aspectRatio)
         );
         displayWidth = displayHeight * aspectRatio;
-
-        // if width becomes too small, adjust based on min width
-        if (displayWidth < minWidth) {
-          displayWidth = minWidth;
-          displayHeight = displayWidth / aspectRatio;
-        }
-
-        // also check that it doesn't exceed maxWidth for tall images
-        if (displayWidth > maxWidth) {
-          displayWidth = maxWidth;
-          displayHeight = displayWidth / aspectRatio;
-        }
       }
 
       setSingleImageDimensions({
@@ -140,16 +113,16 @@ export function ImageSection({ images }: { images: string[] }) {
   if (count === 1) {
     if (!singleImageDimensions) {
       return (
-        <div className="max-w-[400px] w-full h-[225px] rounded-lg bg-gray-200 animate-pulse" />
+        <div className="w-full max-w-sm aspect-video rounded-lg bg-gray-200 animate-pulse" />
       );
     }
 
     return (
       <>
         <div
-          className="rounded-lg overflow-hidden relative"
+          className="rounded-lg overflow-hidden relative w-full max-w-sm"
           style={{
-            width: `${singleImageDimensions.width}px`,
+            maxWidth: `${singleImageDimensions.width}px`,
             height: `${singleImageDimensions.height}px`,
           }}
         >
@@ -171,7 +144,7 @@ export function ImageSection({ images }: { images: string[] }) {
   if (count === 2) {
     return (
       <>
-        <div className="max-w-[400px] w-full h-[225px] rounded-lg overflow-hidden grid grid-cols-2 gap-1">
+        <div className="w-full max-w-sm aspect-video rounded-lg overflow-hidden grid grid-cols-2 gap-1">
           <div className="relative">{renderImage(images[0], 0)}</div>
           <div className="relative">{renderImage(images[1], 1)}</div>
         </div>
@@ -183,7 +156,7 @@ export function ImageSection({ images }: { images: string[] }) {
   if (count === 3) {
     return (
       <>
-        <div className="max-w-[400px] w-full h-[225px] rounded-lg overflow-hidden grid grid-cols-2 grid-rows-2 gap-1">
+        <div className="w-full max-w-sm aspect-video rounded-lg overflow-hidden grid grid-cols-2 grid-rows-2 gap-1">
           <div className="relative row-span-2">{renderImage(images[0], 0)}</div>
           <div className="relative">{renderImage(images[1], 1)}</div>
           <div className="relative">{renderImage(images[2], 2)}</div>
@@ -195,7 +168,7 @@ export function ImageSection({ images }: { images: string[] }) {
 
   return (
     <>
-      <div className="max-w-[400px] w-full h-[225px] rounded-lg overflow-hidden grid grid-cols-2 grid-rows-2 gap-1">
+      <div className="w-full max-w-sm aspect-video rounded-lg overflow-hidden grid grid-cols-2 grid-rows-2 gap-1">
         <div className="relative">{renderImage(images[0], 0)}</div>
         <div className="relative">{renderImage(images[1], 1)}</div>
         <div className="relative">{renderImage(images[2], 2)}</div>

@@ -196,10 +196,10 @@ export function FeedClient({
 
   return (
     <div className="flex flex-row w-screen h-screen overflow-hidden">
-      <div className="w-1/3 flex-shrink-0">
+      <div className="w-1/3 flex-shrink-0 hidden lg:block">
         <LeftBar />
       </div>
-      <div className="flex flex-col border-r border-gray-300 w-1/3 flex-shrink-0 h-full">
+      <div className="flex flex-col border-r border-gray-300 w-2/3 lg:w-1/3 flex-shrink-0 h-full">
         <h2 className="text-4xl font-semibold mx-8 my-4">Feed</h2>
         <hr className="w-[90%] mx-auto" />
         <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
@@ -210,9 +210,11 @@ export function FeedClient({
               onTextChange={handleTextChange}
             />
             {previewImages.length > 0 && (
-              <div className="my-4 w-full flex flex-col items-center">
-                <ImageSection images={previewImages} />
-                <div className="flex gap-2 mt-2">
+              <div className="my-4 w-full flex flex-col items-center max-w-full">
+                <div className="w-full max-w-sm">
+                  <ImageSection images={previewImages} />
+                </div>
+                <div className="flex gap-2 mt-2 flex-wrap justify-center">
                   {previewImages.map((_, idx) => (
                     <button
                       key={idx}

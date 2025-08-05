@@ -252,82 +252,74 @@ export default function PostTile({
       </div>
       <div className="flex flex-col mx-4 text-lg ">
         <p className="break-all">{textContent}</p>
-        <div className="flex flex-col items-center justify-center mt-4">
+        <div className="flex flex-col items-center justify-center mt-4 w-full max-w-full">
           {images && images.length > 0 && (
-            <ImageSection images={images ?? []} />
+            <div className="w-full max-w-sm">
+              <ImageSection images={images ?? []} />
+            </div>
           )}
         </div>
       </div>
-      <div className="flex flex-row items-center justify-start mt-4">
+      <div className="flex flex-wrap gap-2 items-center justify-start mt-4">
         <button
-          className="text-white px-6 py-2 rounded-4xl cursor-pointer transition-colors"
+          className="text-white px-4 py-2 rounded-4xl cursor-pointer transition-colors flex items-center"
           onClick={() => handleReaction("TRIANGLE")}
           onMouseEnter={() => setHoveredShape("TRIANGLE")}
           onMouseLeave={() => setHoveredShape(null)}
         >
-          <span>
-            <shapes.Triangle
-              className="inline mr-2 w-6 h-6"
-              fill={getShapeColor("TRIANGLE", hoveredShape === "TRIANGLE")}
-            />
-            {localShapeCounts.triangle}
-          </span>
+          <shapes.Triangle
+            className="inline mr-2 w-6 h-6"
+            fill={getShapeColor("TRIANGLE", hoveredShape === "TRIANGLE")}
+          />
+          <span className="text-base">{localShapeCounts.triangle}</span>
         </button>
         <button
-          className="text-white px-6 py-2 rounded-4xl cursor-pointer transition-colors"
+          className="text-white px-4 py-2 rounded-4xl cursor-pointer transition-colors flex items-center"
           onClick={() => handleReaction("CIRCLE")}
           onMouseEnter={() => setHoveredShape("CIRCLE")}
           onMouseLeave={() => setHoveredShape(null)}
         >
-          <span>
-            <shapes.Circle
-              className="inline mr-2 w-6 h-6"
-              fill={getShapeColor("CIRCLE", hoveredShape === "CIRCLE")}
-            />
-            {localShapeCounts.circle}
-          </span>
+          <shapes.Circle
+            className="inline mr-2 w-6 h-6"
+            fill={getShapeColor("CIRCLE", hoveredShape === "CIRCLE")}
+          />
+          <span className="text-base">{localShapeCounts.circle}</span>
         </button>
         <button
-          className="text-white px-6 py-2 rounded-4xl cursor-pointer transition-colors"
+          className="text-white px-4 py-2 rounded-4xl cursor-pointer transition-colors flex items-center"
           onClick={() => handleReaction("SQUARE")}
           onMouseEnter={() => setHoveredShape("SQUARE")}
           onMouseLeave={() => setHoveredShape(null)}
         >
-          <span>
-            <shapes.Square
-              className="inline mr-2 w-6 h-6"
-              fill={getShapeColor("SQUARE", hoveredShape === "SQUARE")}
-            />
-            {localShapeCounts.square}
-          </span>
+          <shapes.Square
+            className="inline mr-2 w-6 h-6"
+            fill={getShapeColor("SQUARE", hoveredShape === "SQUARE")}
+          />
+          <span className="text-base">{localShapeCounts.square}</span>
         </button>
         <button
-          className="text-white px-6 py-2 rounded-4xl cursor-pointer transition-colors"
+          className="text-white px-4 py-2 rounded-4xl cursor-pointer transition-colors flex items-center"
           onClick={() => handleReaction("DIAMOND")}
           onMouseEnter={() => setHoveredShape("DIAMOND")}
           onMouseLeave={() => setHoveredShape(null)}
         >
-          <span>
-            <shapes.Diamond
-              className="inline mr-2 w-6 h-6"
-              fill={getShapeColor("DIAMOND", hoveredShape === "DIAMOND")}
-            />
-            {localShapeCounts.diamond}
-          </span>
+          <shapes.Diamond
+            className="inline mr-2 w-6 h-6"
+            fill={getShapeColor("DIAMOND", hoveredShape === "DIAMOND")}
+          />
+          <span className="text-base">{localShapeCounts.diamond}</span>
         </button>
         <button
-          className="text-white px-6 py-2 rounded-4xl cursor-pointer transition-colors"
+          className="text-white px-4 py-2 rounded-4xl cursor-pointer transition-colors flex items-center"
           onClick={() => handleReaction("HEXAGON")}
           onMouseEnter={() => setHoveredShape("HEXAGON")}
           onMouseLeave={() => setHoveredShape(null)}
         >
-          <span>
-            <shapes.Hexagon
-              className="inline mr-2 w-6 h-6"
-              fill={getShapeColor("HEXAGON", hoveredShape === "HEXAGON")}
-            />
-            {localShapeCounts.hexagon}
-          </span>
+          <shapes.Hexagon
+            className="inline mr-2 w-6 h-6"
+            fill={getShapeColor("HEXAGON", hoveredShape === "HEXAGON")}
+          />
+          <span className="text-base">{localShapeCounts.hexagon}</span>
         </button>
       </div>
     </div>
