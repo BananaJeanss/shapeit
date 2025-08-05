@@ -46,6 +46,18 @@ export default function PostTile({
   const [hoveredShape, setHoveredShape] = useState<ShapeType | null>(null);
   const [showMenu, setShowMenu] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const [localUserReaction, setLocalUserReaction] = useState<ShapeType | null>(
+    userReaction || null
+  );
+  const [localShapeCounts, setLocalShapeCounts] = useState({
+    triangle: shapeCounts?.triangle ?? 0,
+    circle: shapeCounts?.circle ?? 0,
+    square: shapeCounts?.square ?? 0,
+    diamond: shapeCounts?.diamond ?? 0,
+    hexagon: shapeCounts?.hexagon ?? 0,
+  });
+
   const menuRef = useRef<HTMLDivElement>(null);
 
   // close menu when clicking outside
@@ -68,9 +80,42 @@ export default function PostTile({
   const isOwner = currentUserId && authorId === currentUserId;
 
   const handleReaction = async (shape: ShapeType) => {
+    if (!currentUserId) return;
+
+    const wasReacted = localUserReaction === shape;
+    const newReaction = wasReacted ? null : shape;
+
+    setLocalUserReaction(newReaction);
+    setLocalShapeCounts((prev) => {
+      const newCounts = { ...prev };
+
+      if (localUserReaction) {
+        const prevShapeKey =
+          localUserReaction.toLowerCase() as keyof typeof newCounts;
+        newCounts[prevShapeKey] = Math.max(0, newCounts[prevShapeKey] - 1);
+      }
+
+      if (newReaction) {
+        const shapeKey = shape.toLowerCase() as keyof typeof newCounts;
+        newCounts[shapeKey] = newCounts[shapeKey] + 1;
+      }
+
+      return newCounts;
+    });
+
     try {
       await toggleReaction(id, shape);
     } catch (error) {
+      // revert shape if it errors
+      setLocalUserReaction(localUserReaction);
+      setLocalShapeCounts({
+        triangle: shapeCounts?.triangle ?? 0,
+        circle: shapeCounts?.circle ?? 0,
+        square: shapeCounts?.square ?? 0,
+        diamond: shapeCounts?.diamond ?? 0,
+        hexagon: shapeCounts?.hexagon ?? 0,
+      });
+
       toast.error("Failed to toggle reaction. Please try again.");
       console.error("Error toggling reaction:", error);
     }
@@ -114,7 +159,7 @@ export default function PostTile({
   };
 
   const getShapeColor = (shape: ShapeType, isHover = false) => {
-    const isReacted = userReaction === shape;
+    const isReacted = localUserReaction === shape;
 
     switch (shape) {
       case "CIRCLE":
@@ -225,7 +270,7 @@ export default function PostTile({
               className="inline mr-2 w-6 h-6"
               fill={getShapeColor("TRIANGLE", hoveredShape === "TRIANGLE")}
             />
-            {shapeCounts?.triangle ?? 0}
+            {localShapeCounts.triangle}
           </span>
         </button>
         <button
@@ -239,7 +284,7 @@ export default function PostTile({
               className="inline mr-2 w-6 h-6"
               fill={getShapeColor("CIRCLE", hoveredShape === "CIRCLE")}
             />
-            {shapeCounts?.circle ?? 0}
+            {localShapeCounts.circle}
           </span>
         </button>
         <button
@@ -253,7 +298,7 @@ export default function PostTile({
               className="inline mr-2 w-6 h-6"
               fill={getShapeColor("SQUARE", hoveredShape === "SQUARE")}
             />
-            {shapeCounts?.square ?? 0}
+            {localShapeCounts.square}
           </span>
         </button>
         <button
@@ -267,7 +312,7 @@ export default function PostTile({
               className="inline mr-2 w-6 h-6"
               fill={getShapeColor("DIAMOND", hoveredShape === "DIAMOND")}
             />
-            {shapeCounts?.diamond ?? 0}
+            {localShapeCounts.diamond}
           </span>
         </button>
         <button
@@ -281,7 +326,7 @@ export default function PostTile({
               className="inline mr-2 w-6 h-6"
               fill={getShapeColor("HEXAGON", hoveredShape === "HEXAGON")}
             />
-            {shapeCounts?.hexagon ?? 0}
+            {localShapeCounts.hexagon}
           </span>
         </button>
       </div>
