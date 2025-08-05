@@ -26,6 +26,11 @@ const nextConfig: NextConfig = {
     contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "8mb", // cause 1mb is too little
+    },
+  },
 };
 
 export default nextConfig;

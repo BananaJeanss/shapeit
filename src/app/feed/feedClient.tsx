@@ -177,7 +177,11 @@ export function FeedClient({
       toast.success("Post created successfully!");
     } catch (error) {
       console.error("Error creating post:", error);
-      toast.error("Failed to create post. Please try again.");
+      toast.error(
+        `Failed to create post. ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     } finally {
       setIsPosting(false);
     }

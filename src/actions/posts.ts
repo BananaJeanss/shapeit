@@ -7,11 +7,39 @@ import type { ShapeType } from "@prisma/client";
 import { put, head } from "@vercel/blob";
 import crypto from "crypto";
 
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+
+export async function checkRateLimit(
+  key: string,
+  maxRequests: number,
+  windowMs: number
+): Promise<boolean> {
+  const now = Date.now();
+  const userLimit = rateLimitStore.get(key);
+
+  if (!userLimit || now > userLimit.resetTime) {
+    rateLimitStore.set(key, { count: 1, resetTime: now + windowMs });
+    return true;
+  }
+
+  if (userLimit.count >= maxRequests) {
+    return false;
+  }
+
+  userLimit.count++;
+  return true;
+}
+
 export async function createPost(formData: FormData) {
   const session = await auth();
 
   if (!session?.user?.email) {
     redirect("/api/auth/signin");
+  }
+
+  // ratelimit check, 10 posts per 30 minutes
+  if (!(await checkRateLimit(session.user.email, 10, 30 * 60 * 1000))) {
+    throw new Error("Rate limit exceeded. Please try again later.");
   }
 
   const content = formData.get("content") as string;
